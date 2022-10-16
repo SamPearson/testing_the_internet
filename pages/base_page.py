@@ -1,3 +1,5 @@
+from selenium.common.exceptions import NoSuchElementException
+
 
 class BasePage():
     def __init__(self, driver):
@@ -7,7 +9,10 @@ class BasePage():
         self.driver.get(url)
 
     def _find(self, locator):
-        return self.driver.find_element(locator["by"], locator["value"])
+        try:
+            return self.driver.find_element(locator["by"], locator["value"])
+        except NoSuchElementException:
+            return False
 
     def _click(self, locator):
         self._find(locator).click()
