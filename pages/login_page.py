@@ -13,7 +13,7 @@ class LoginPage(BasePage):
 
     def __init__(self, driver):
         self.driver = driver
-        self._visit("http://the-internet.herokuapp.com/login")
+        self._visit("/login")
         assert self._is_displayed(self._login_form)
 
     def with_(self, username, password):
@@ -22,7 +22,7 @@ class LoginPage(BasePage):
         self._click(self._submit_button)
 
     def success_message_present(self):
-        return self._is_displayed(self._success_message)
+        return self._is_displayed(self._success_message, 1)
 
     def failure_message_present(self):
-        return self._is_displayed(self._failure_message)
+        return self._is_displayed(self._failure_message, 1)
