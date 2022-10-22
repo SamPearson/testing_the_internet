@@ -16,3 +16,8 @@ class TestLogin:
     def test_invalid_credentials(self, login):
         login.with_("tomsmith", "bad password")
         assert login.failure_message_present()
+
+    @pytest.mark.shallow
+    def test_forced_failure(self, login):
+        login.with_("tomsmith", "bad password")
+        assert login.success_message_present()

@@ -130,3 +130,6 @@ dmypy.json
 
 # pycharm configuration
 .idea/
+
+# test results
+result.xml
