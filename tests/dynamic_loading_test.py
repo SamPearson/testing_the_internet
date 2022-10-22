@@ -3,6 +3,7 @@ import pytest
 from pages import dynamic_loading_page
 
 
+@pytest.mark.deep
 class TestDynamicLoading():
 
     @pytest.fixture
