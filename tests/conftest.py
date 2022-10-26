@@ -39,15 +39,18 @@ def driver(request):
     config.platform = request.config.getoption("--platform").lower()
 
     if config.host == "saucelabs":
-        _desired_caps = {}
-        _desired_caps["browserName"] = config.browser
-        _desired_caps["browserVersion"] = config.browserversion
-        _desired_caps["platformName"] = config.platform
-        _desired_caps["name"] = request.cls.__name__ + "." + request.function.__name__
-        _credentials = os.environ["SAUCE_USERNAME"] + ":" + os.environ[
-            "SAUCE_ACCESS_KEY"]
+        # If using jenkins, saucelabs credentials must be set manually, as described below
+        # https://docs.saucelabs.com/ci/jenkins/
+        _credentials = os.getenv("SAUCE_USERNAME") + ":" + os.getenv(
+            "SAUCE_ACCESS_KEY")
         _url = "https://" + _credentials + "@ondemand.us-west-1.saucelabs.com:443/wd/hub"
+
+        _desired_caps = {"browserName": config.browser, "browserVersion": config.browserversion,
+                         "platformName": config.platform,
+                         "name": request.cls.__name__ + "." + request.function.__name__}
+
         driver_ = webdriver.Remote(_url, _desired_caps)
+
     elif config.host == "localhost":
         driver_ = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
 
@@ -64,6 +67,7 @@ def driver(request):
 
     request.addfinalizer(quit_browser)
     return driver_
+
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
