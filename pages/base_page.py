@@ -13,9 +13,6 @@ class BasePage():
             self.driver.get(url)
         else:
             print(f"Base URL: {config.baseurl}")
-            print(f"Base URL: {config.baseurl}")
-            print(f"Base URL: {config.baseurl}")
-            print(f"Base URL: {config.baseurl}")
             self.driver.get(config.baseurl + url)
 
     def _find(self, locator):
