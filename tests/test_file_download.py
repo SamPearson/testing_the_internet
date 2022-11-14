@@ -1,7 +1,5 @@
 import pytest
 from pages import file_download_page
-import shutil
-import os
 
 
 @pytest.mark.download
@@ -11,9 +9,11 @@ class TestFileDownload:
         return file_download_page.DownloadPage(driver)
 
     @pytest.mark.smoke
-    def test_download_file(self, download_page):
-        # Selenium can be used to inspect or interact with elements on the page
-        # It is not meant to be used to test a browser's file download ability.
-        pass  # download_page.download_first_file()
+    def test_download_file_headers(self, download_page):
 
-        #  assert about a downloaded file
+        headers = download_page.fetch_first_file_headers()
+        content_type = headers.getheader('Content-type')
+        content_length = int(headers.getheader('Content-length'))
+
+        assert content_type == 'application/octet-stream'
+        assert content_length > 0
