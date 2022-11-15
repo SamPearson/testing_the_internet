@@ -11,7 +11,6 @@ class TestFileUpload:
 
     @pytest.mark.smoke
     def test_upload_file(self, upload):
-        #create file
         filename = "upload_test_file.txt"
         path = os.path.join(os.getcwd(), "assets", filename)
         upload.file_(path)

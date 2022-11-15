@@ -6,25 +6,28 @@ import http.client
 
 
 class DownloadPage(BasePage):
-    _first_download_link = {"by": By.CSS_SELECTOR, "value": ".example a"}
+    _download_links = {"by": By.CSS_SELECTOR, "value": ".example a"}
 
     def __init__(self, driver):
         self.driver = driver
         self._visit("/download")
 
-    def get_link(self):
-        pass
-        #  Get list of A elements
-        #  parse list of A element, collect exact matches
+    def get_link(self, link_text):
+        return self.get_links(link_text)[0]
 
-    def download_first_file(self):
-        self._find(self._first_download_link).click()
-        time.sleep(1.0)  # ETA for files downloaded with selenium must be Estimated
+    def get_links(self, link_text):
+        links = self._find_all(self._download_links)
+        matches = [link.get_attribute('href') for link in links
+                   if link_text in link.text]
 
-    def fetch_first_file_headers(self):
-        link = self._find(self._first_download_link).get_attribute('href')
+        if matches:
+            return matches
+        else:
+            return False
+
+    def request_headers(self, url):
         connection = http.client.HTTPConnection(self.driver.base_domain)
-        connection.request('HEAD', link)
+        connection.request('HEAD', url)
         response = connection.getresponse()
 
         return response

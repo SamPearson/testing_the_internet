@@ -11,7 +11,8 @@ class TestFileDownload:
     @pytest.mark.smoke
     def test_download_file_headers(self, download_page):
 
-        headers = download_page.fetch_first_file_headers()
+        link = download_page.get_link(".txt")
+        headers = download_page.request_headers(link)
         content_type = headers.getheader('Content-type')
         content_length = int(headers.getheader('Content-length'))
 

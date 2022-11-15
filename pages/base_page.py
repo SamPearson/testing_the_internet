@@ -3,7 +3,6 @@ from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 from tests import config
 
-
 class BasePage():
     def __init__(self, driver):
         self.driver = driver
@@ -16,8 +15,11 @@ class BasePage():
             self.driver.get(config.baseurl + url)
 
     def _find(self, locator):
+        return self._find_all(locator)[0]
+
+    def _find_all(self, locator):
         try:
-            return self.driver.find_element(locator["by"], locator["value"])
+            return self.driver.find_elements(locator["by"], locator["value"])
         except NoSuchElementException:
             return False
 
