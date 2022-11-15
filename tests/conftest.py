@@ -5,6 +5,7 @@ from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.firefox import GeckoDriverManager
 from . import config
 import os
+import re
 
 
 def pytest_addoption(parser):
@@ -53,6 +54,10 @@ def driver(request):
 
     elif config.host == "localhost":
         driver_ = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
+
+
+    driver_.base_url = config.baseurl
+    driver_.base_domain = re.sub(".*//","",config.baseurl)
 
     def quit_browser():
         try:
