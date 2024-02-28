@@ -1,11 +1,9 @@
 
 import pytest
 from selenium import webdriver
-from selenium.webdriver.firefox.service import Service as FirefoxService
-from webdriver_manager.firefox import GeckoDriverManager
-from . import config
+from selenium.webdriver.chrome.service import Service
+from env_config import test_env_config
 import os
-import re
 
 
 def pytest_addoption(parser):
@@ -33,35 +31,35 @@ def pytest_addoption(parser):
 
 @pytest.fixture
 def driver(request):
-    config.baseurl = request.config.getoption("--baseurl")
-    config.host = request.config.getoption("--host").lower()
-    config.browser = request.config.getoption("--browser").lower()
-    config.browserversion = request.config.getoption("--browserversion").lower()
-    config.platform = request.config.getoption("--platform").lower()
+    test_env_config.baseurl = request.config.getoption("--baseurl")
+    test_env_config.host = request.config.getoption("--host").lower()
+    test_env_config.browser = request.config.getoption("--browser").lower()
+    test_env_config.browserversion = request.config.getoption("--browserversion").lower()
+    test_env_config.platform = request.config.getoption("--platform").lower()
 
-    if config.host == "saucelabs":
+    if test_env_config.host == "saucelabs":
         # If using jenkins, saucelabs credentials must be set manually, as described below
         # https://docs.saucelabs.com/ci/jenkins/
         _credentials = os.getenv("SAUCE_USERNAME") + ":" + os.getenv(
             "SAUCE_ACCESS_KEY")
         _url = "https://" + _credentials + "@ondemand.us-west-1.saucelabs.com:443/wd/hub"
 
-        _desired_caps = {"browserName": config.browser, "browserVersion": config.browserversion,
-                         "platformName": config.platform,
+        _desired_caps = {"browserName": test_env_config.browser, "browserVersion": test_env_config.browserversion,
+                         "platformName": test_env_config.platform,
                          "name": request.cls.__name__ + "." + request.function.__name__}
 
         driver_ = webdriver.Remote(_url, _desired_caps)
 
-    elif config.host == "localhost":
+    elif test_env_config.host == "localhost":
         driver_ = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
 
 
-    driver_.base_url = config.baseurl
-    driver_.base_domain = re.sub(".*//","",config.baseurl)
+    driver_.base_url = test_env_config.baseurl
+    driver_.base_domain = re.sub(".*//","",test_env_config.baseurl)
 
     def quit_browser():
         try:
-            if config.host == "saucelabs":
+            if test_env_config.host == "saucelabs":
                 if request.node.result_call.failed:
                     driver_.execute_script("sauce:job-result=failed")
                     print("https://saucelabs.com/tests/" + driver_.session_id)
