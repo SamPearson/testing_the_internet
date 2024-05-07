@@ -4,10 +4,10 @@ from . base_page import BasePage
 
 
 class UploadPage(BasePage):
-    _file_browse_button = {"by": By.ID, "value": "file-upload"}
-    _submit_button = {"by": By.ID, "value": "file-submit"}
-    _dragon_drop_field = {"by": By.ID, "value": "drag-drop-upload"}
-    _uploaded_files = {"by": By.ID, "value": "uploaded-files"}
+    _file_browse_button = (By.ID, "file-upload")
+    _submit_button = (By.ID, "file-submit")
+    _dragon_drop_field = (By.ID, "drag-drop-upload")
+    _uploaded_files = (By.ID, "uploaded-files")
 
     def __init__(self, driver):
         self.driver = driver

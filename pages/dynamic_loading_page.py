@@ -3,8 +3,8 @@ from selenium.webdriver.common.by import By
 from . base_page import BasePage
 
 class DynamicLoadingPage(BasePage):
-    _start_button = {"by": By.CSS_SELECTOR, "value": "#start button"}
-    _finish_text = {"by": By.ID, "value": "finish"}
+    _start_button = (By.CSS_SELECTOR, "#start button")
+    _finish_text = (By.ID, "finish")
 
     def __init__(self, driver):
         self.driver = driver
