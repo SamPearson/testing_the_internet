@@ -2,7 +2,7 @@
 import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from env_config import test_env_config
+from environments import environment_data
 import os
 
 
@@ -11,62 +11,43 @@ def pytest_addoption(parser):
                      action="store",
                      default="https://the-internet.herokuapp.com",
                      help="base URL for the application under test")
-    parser.addoption("--host",
+    parser.addoption("--env",
                      action="store",
-                     default="saucelabs",
-                     help="where to run your tests: localhost or saucelabs")
-    parser.addoption("--browser",
+                     default="no_env",
+                     help="Filename for the test environment file")
+    parser.addoption("--headless",
                      action="store",
-                     default="firefox",
-                     help="the name of the browser you want to test with")
-    parser.addoption("--browserversion",
-                     action="store",
-                     default="latest",
-                     help="the browser version you want to test with")
-    parser.addoption("--platform",
-                     action="store",
-                     default="Windows 7",
-                     help="the operating system to run your tests on (saucelabs only)")
+                     default="False",
+                     help="Run tests with browser in headless mode")
 
 
 @pytest.fixture
 def driver(request):
-    test_env_config.baseurl = request.config.getoption("--baseurl")
-    test_env_config.host = request.config.getoption("--host").lower()
-    test_env_config.browser = request.config.getoption("--browser").lower()
-    test_env_config.browserversion = request.config.getoption("--browserversion").lower()
-    test_env_config.platform = request.config.getoption("--platform").lower()
+    service = Service()
+    options = webdriver.ChromeOptions()
+    if request.config.getoption("--headless") != "False":
+        options.add_argument('--headless')
 
-    if test_env_config.host == "saucelabs":
-        # If using jenkins, saucelabs credentials must be set manually, as described below
-        # https://docs.saucelabs.com/ci/jenkins/
-        _credentials = os.getenv("SAUCE_USERNAME") + ":" + os.getenv(
-            "SAUCE_ACCESS_KEY")
-        _url = "https://" + _credentials + "@ondemand.us-west-1.saucelabs.com:443/wd/hub"
+        # Magical Config args:
+        # SOME(not all) selectors break if you don't set window size. on headless mode.
+        options.add_argument('window-size=1920x1080')
+        # Browser will not be initialized in bitbucket pipelines without this config argument
+        options.add_argument('--no-sandbox')
 
-        _desired_caps = {"browserName": test_env_config.browser, "browserVersion": test_env_config.browserversion,
-                         "platformName": test_env_config.platform,
-                         "name": request.cls.__name__ + "." + request.function.__name__}
+    driver_ = webdriver.Chrome(service=service, options=options)
+    driver_.maximize_window()
 
-        driver_ = webdriver.Remote(_url, _desired_caps)
+    test_environment = request.config.getoption("--env")
+    test_env_filename = os.path.join("environments", f"{test_environment}.json")
+    assert os.path.exists(test_env_filename), f"Could not find json env file for {test_env_filename}"
 
-    elif test_env_config.host == "localhost":
-        driver_ = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
+    environment_data.parse_environment_file(test_env_filename)
 
-
-    driver_.base_url = test_env_config.baseurl
-    driver_.base_domain = re.sub(".*//","",test_env_config.baseurl)
+    # This should be set by the env file or by the test type
+    driver_.base_url = request.config.getoption("--baseurl")
 
     def quit_browser():
-        try:
-            if test_env_config.host == "saucelabs":
-                if request.node.result_call.failed:
-                    driver_.execute_script("sauce:job-result=failed")
-                    print("https://saucelabs.com/tests/" + driver_.session_id)
-                elif request.node.result_call.passed:
-                    driver_.execute_script("sauce:job-result=passed")
-        finally:
-            driver_.quit()
+        driver_.quit()
 
     request.addfinalizer(quit_browser)
     return driver_
