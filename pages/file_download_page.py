@@ -6,7 +6,7 @@ import http.client
 
 
 class DownloadPage(BasePage):
-    _download_links = {"by": By.CSS_SELECTOR, "value": ".example a"}
+    _download_links = (By.CSS_SELECTOR, ".example a")
 
     def __init__(self, driver):
         self.driver = driver
