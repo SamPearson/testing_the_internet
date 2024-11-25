@@ -26,7 +26,7 @@ class DownloadPage(BasePage):
             return False
 
     def request_headers(self, url):
-        connection = http.client.HTTPConnection(self.driver.base_domain)
+        connection = http.client.HTTPSConnection(self.driver.base_domain)
         connection.request('HEAD', url)
         response = connection.getresponse()
 

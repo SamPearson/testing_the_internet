@@ -9,7 +9,7 @@ import os
 def pytest_addoption(parser):
     parser.addoption("--baseurl",
                      action="store",
-                     default="https://the-internet.herokuapp.com",
+                     default="the-internet.herokuapp.com",
                      help="base URL for the application under test")
     parser.addoption("--env",
                      action="store",
@@ -44,7 +44,8 @@ def driver(request):
     environment_data.parse_environment_file(test_env_filename)
 
     # This should be set by the env file or by the test type
-    driver_.base_url = request.config.getoption("--baseurl")
+    driver_.base_url = "https://" + request.config.getoption("--baseurl")
+    driver_.base_domain = request.config.getoption("--baseurl")
 
     def quit_browser():
         driver_.quit()
